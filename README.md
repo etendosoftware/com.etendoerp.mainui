@@ -1,13 +1,5 @@
 # Etendo Main UI
 
-## Overview
-This README provides the necessary steps to install and set up the Etendo Main UI. Follow these instructions to get the module running in your Etendo Classic environment.
-
-## Prerequisites
-- Etendo Classic project set up.
-- Docker installed and running.
-- Java and Gradle installed.
-
 ## Installation Steps
 
 ### 1. Clone the Repository
@@ -18,32 +10,35 @@ git clone <repository_url>
 ```
 
 ### 2. Configure Services
-Add the following lines to your `gradle.properties` file to set up the required services:
+Add the following lines to your `gradle.properties` file:
+```properties
+docker_com.etendoerp.mainui=true
+ETENDO_CLASSIC_URL=http://your.etendo.instance/etendo
+```
+
+#### If Running Etendo Classic via Docker
+To enable Docker services for Etendo Classic, also add these lines:
 ```properties
 docker_com.etendoerp.docker_db=true
 docker_com.etendoerp.tomcat=true
-docker_com.etendoerp.mainui=true
 ```
 
-### 3. Run Setup and Resources
-Execute the following commands to set up the module and update resources:
+### 3. Set Up the Module
+Run the following commands to set up the module and update resources:
 ```bash
 ./gradlew setup
 ./gradlew resources.up
 ```
 
-### 4. (Optional) Database Setup
-If the database has not been set up yet, run the following command:
+### 4. (If Running in Docker) Set Up the Database
+If this is your first time running Etendo Classic via Docker, install the database:
 ```bash
 ./gradlew install
 ```
 
 ## Notes
-- Ensure Docker services are up and running before executing the Gradle commands.
-- The `install` task is only necessary when setting up the database for the first time.
+- The `install` task is only needed if running Etendo Classic via Docker for the first time.
 
 ## Troubleshooting
-- If you encounter issues during the setup, verify your Docker and Java installations.
-- Check the logs for detailed error messages.
-
-
+- Ensure Docker and Java are properly installed.
+- Check the logs for detailed error messages if issues occur.
