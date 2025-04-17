@@ -1,5 +1,9 @@
 # Etendo Main UI
 
+[![Release](https://img.shields.io/github/v/release/etendosoftware/com.etendoerp.mainui?label=release)](https://github.com/etendosoftware/com.etendoerp.mainui/releases)  
+[![Build](https://img.shields.io/github/actions/workflow/status/etendosoftware/com.etendoerp.mainui/gradle.yml?label=build)](https://github.com/etendosoftware/com.etendoerp.mainui/actions)  
+[![License](https://img.shields.io/github/license/etendosoftware/com.etendoerp.mainui)](https://github.com/etendosoftware/com.etendoerp.mainui/blob/develop/LICENSE)
+
 ## Installation Steps
 
 ### 1. Clone the Repository
