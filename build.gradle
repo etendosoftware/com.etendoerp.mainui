@@ -7,10 +7,10 @@
 */
 
 group          = "com.etendoerp"
-version        = "1.0.0"
+version        = "0.2.0"
 description    = "Main UI Next.js frontend"
 ext.artifact   = "mainui"
-ext.repository = "https://maven.pkg.github.com/etendosoftware/com.etendoerp.mainui"
+ext.repository = "https://maven.pkg.github.com/etendosoftware/com.etendoerp.platform.extensions"
 
 configurations {
     moduleDependencyContainer
@@ -27,7 +27,7 @@ publishing {
     }
     repositories {
         maven {
-            url "https://maven.pkg.github.com/etendosoftware/com.etendoerp.mainui"
+            url "https://maven.pkg.github.com/etendosoftware/com.etendoerp.platform.extensions"
         }
     }
 }
@@ -35,7 +35,7 @@ publishing {
 repositories {
     mavenCentral()
     maven {
-        url "https://maven.pkg.github.com/etendosoftware/com.etendoerp.mainui"
+        url "https://maven.pkg.github.com/etendosoftware/com.etendoerp.platform.extensions"
     }
     maven {
         url "https://repo.futit.cloud/repository/maven-releases"
