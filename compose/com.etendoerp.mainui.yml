@@ -1,7 +1,7 @@
 services:
   etendo_ui:
     container_name: etendo_ui
-    image: etendo/etendo_ui:latest
+    image: etendo/etendo_ui:0.2.0
     ports:
       - 3000:3000
     networks:
