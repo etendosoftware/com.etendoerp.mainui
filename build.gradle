@@ -7,7 +7,7 @@
 */
 
 group          = "com.etendoerp"
-version        = "0.7.0"
+version        = "0.7.1"
 description    = "Main UI Next.js frontend"
 ext.artifact   = "mainui"
 ext.repository = "https://maven.pkg.github.com/etendosoftware/com.etendoerp.platform.extensions"
@@ -53,7 +53,7 @@ repositories {
 * Ex: implementation "com.sun.mail:javax.mail:1.6.2"
 */
 dependencies {
-    implementation('com.etendoerp:metadata:0.7.0')
+    implementation('com.etendoerp:metadata:0.7.1')
     implementation('com.etendoerp.platform:etendo-core:[25.1.0,25.3.0)')
 }
 
