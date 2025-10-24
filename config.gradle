@@ -1,0 +1,32 @@
+/**
+ * Interactive configuration for MainUi
+ */
+
+newUI {
+    dockerNewUI {
+        description = "Enable MainUI Docker service. This must be enabled to use the new UI"
+        value = "true"
+        sensitive = false
+        required = true
+        group = "New UI"
+        name = "docker_com.etendoerp.mainui"
+    }
+
+    etendoClassicUrl {
+        description = "URL for classic UI backend"
+        value = ""
+        sensitive = false
+        required = true
+        group = "New UI"
+        name = "ETENDO_CLASSIC_URL"
+    }
+
+    authClass {
+        description = "Authentication class to login"
+        value = "com.etendoerp.etendorx.auth.SWSAuthenticationManager"
+        sensitive = false
+        required = true
+        group = "New UI"
+        name = "authentication.class"
+    }
+}
