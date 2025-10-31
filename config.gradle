@@ -1,7 +1,6 @@
 /**
  * Interactive configuration for MainUi
  */
-
 newUI {
     dockerNewUI {
         description = "Enable MainUI Docker service. This must be enabled to use the new UI"
@@ -11,7 +10,6 @@ newUI {
         group = "New UI"
         name = "docker_com.etendoerp.mainui"
     }
-
     etendoClassicUrl {
         description = "URL for classic UI backend"
         value = ""
@@ -20,7 +18,6 @@ newUI {
         group = "New UI"
         name = "ETENDO_CLASSIC_URL"
     }
-
     authClass {
         description = "Authentication class to login"
         value = "com.etendoerp.etendorx.auth.SWSAuthenticationManager"
@@ -28,5 +25,21 @@ newUI {
         required = true
         group = "New UI"
         name = "authentication.class"
+    }
+    wsMaxInactiveInterval {
+        description = "WebSocket maximum inactive interval in seconds"
+        value = "3600"
+        sensitive = false
+        required = true
+        group = "New UI"
+        name = "ws.maxInactiveInterval"
+    }
+    nextPublicAppUrl {
+        description = "Public application URL for Next.js frontend"
+        value = ""
+        sensitive = false
+        required = true
+        group = "New UI"
+        name = "NEXT_PUBLIC_APP_URL"
     }
 }
