@@ -1,32 +1,99 @@
 /**
- * Interactive configuration for MainUi
+ * Interactive configuration for MainUI
  */
-
 newUI {
+    setup {
+        description = "Run automated MainUI configuration setup wizard"
+        help = """🚀 RECOMMENDED: Run the automated setup wizard to configure MainUI.
+        
+        This wizard will:
+        - Detect if Tomcat is running in Docker or locally
+        - Detect if MainUI is running in Docker or locally  
+        - Automatically configure all required URLs and settings
+        - Handle complex network configurations for mixed setups
+
+        This is the easiest and safest way to configure MainUI. The wizard will ask you simple questions and generate the correct configuration automatically.
+
+        💡 Use this unless you need to manually configure specific settings."""
+        value = "Execute"
+        sensitive = false
+        required = true
+        group = "Main UI"
+        order = 10
+        process = true
+        name = "mainui.variables.setup"
+    }
     dockerNewUI {
-        description = "Enable MainUI Docker service. This must be enabled to use the new UI"
+        description = "Enable MainUI Docker service"
+        help = """🐳 Controls whether MainUI runs as a Docker container or as a local process. Default: false (disabled)"""
         value = "true"
         sensitive = false
-        required = true
-        group = "New UI"
+        required = false
+        group = "Main UI"
+        order = 20
         name = "docker_com.etendoerp.mainui"
     }
-
     etendoClassicUrl {
-        description = "URL for classic UI backend"
-        value = ""
-        sensitive = false
-        required = true
-        group = "New UI"
-        name = "ETENDO_CLASSIC_URL"
-    }
+        description = "Etendo Classic backend URL (server-side)"
+        help = """🌐 URL that MainUI's server uses to communicate with Etendo Classic backend.
+        - This URL is for SERVER-SIDE communication (invisible to browser)
+        - Use Docker hostnames if both services are in Docker
+        - Use 'host.docker.internal' if MainUI is in Docker but Tomcat is local
 
+        🎯 Use the setup wizard to auto-configure this correctly."""
+        value = "http://host.docker.internal:8080/etendo"
+        sensitive = false
+        required = false
+        group = "Main UI"
+        order = 30
+        name = "etendo.classic.url"
+    }
     authClass {
-        description = "Authentication class to login"
+        description = "Authentication manager class"
+        help = """🔐 Java class that handles authentication between MainUI and Etendo Classic.
+        Default: com.etendoerp.etendorx.auth.SWSAuthenticationManager"""
         value = "com.etendoerp.etendorx.auth.SWSAuthenticationManager"
         sensitive = false
-        required = true
-        group = "New UI"
+        required = false
+        group = "Main UI"
+        order = 40
         name = "authentication.class"
+    }
+
+    wsMaxInactiveInterval {
+        description = "WebSocket connection timeout (seconds)"
+        help = """⏱️  Maximum time (in seconds) a WebSocket connection can remain inactive before timing out.
+        RECOMMENDED VALUES:
+        - Development: 3600 (1 hour) - convenient for testing
+        - Production: 1800-3600 (30min-1hr) - balance between UX and resources
+        - High-load systems: 900-1800 (15min-30min) - conserve server resources
+        - Low-traffic: 7200+ (2hrs+) - better user experience
+
+        EXAMPLES:
+        - 900 = 15 minutes
+        - 1800 = 30 minutes  
+        - 3600 = 1 hour (default)
+        - 7200 = 2 hours
+
+        🎯 Use default (3600) unless you have specific performance needs."""
+        value = "3600"
+        sensitive = false
+        required = false
+        group = "Main UI"
+        order = 50
+        name = "ws.maxInactiveInterval"
+    }
+
+    nextPublicAppUrl {
+        description = "MainUI public application URL"
+        help = """🌐 Public URL where users access the MainUI application.
+        EXAMPLES:
+        - Production: https://app.your-company.com"""
+        value = "https://localhost:3000"
+        sensitive = false
+        required = false
+        group = "Main UI"
+        order = 60
+        name = "next.public.app.url"
     }
 }

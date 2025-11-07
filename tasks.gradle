@@ -1,0 +1,252 @@
+def InteractiveSetupManager = null
+try {
+    InteractiveSetupManager = Class.forName('com.etendoerp.legacy.interactive.InteractiveSetupManager')
+} catch (ClassNotFoundException e) {
+    // Not available
+}
+
+def readUserInput(String prompt, String defaultValue = "") {
+    def console = System.console()
+    if (console != null) {
+        def input = console.readLine(prompt)
+        return input?.trim() ?: defaultValue
+    }
+
+    println prompt
+    def reader = new BufferedReader(new InputStreamReader(System.in))
+    def input = reader.readLine()?.trim()
+    return input ?: defaultValue
+}
+
+def checkHostDockerInternalAvailability() {
+    try {
+        def checkCommand = ["sh", "-c", "docker run --rm --add-host=host.docker.internal:host-gateway alpine sh -c 'ping -c 1 -W 1 host.docker.internal > /dev/null 2>&1 && echo \"available\" || echo \"not_available\"'"]
+        def process = checkCommand.execute()
+        def output = new StringBuilder()
+        def error = new StringBuilder()
+        process.consumeProcessOutput(output, error)
+        def exitCode = process.waitFor()
+        def outputText = output.toString().trim()
+
+        if (exitCode == 0 && outputText.equals("available")) {
+            logger.info("host.docker.internal is available")
+            return true
+        }
+        return false
+    } catch (Exception e) {
+        logger.warn("Failed to check host.docker.internal: ${e.message}")
+        return false
+    }
+}
+
+def detectDockerBridgeIP(String defaultIp, def yellow, def green, def reset) {
+    try {
+        def command = ["sh", "-c", "docker run --rm alpine sh -c 'ip route show default | head -1 | cut -d\" \" -f3'"]
+        def process = command.execute()
+        def output = new StringBuilder()
+        def error = new StringBuilder()
+        process.consumeProcessOutput(output, error)
+        def exitCode = process.waitFor()
+        def outputText = output.toString().trim()
+
+        if (exitCode == 0 && outputText && !outputText.isEmpty()) {
+            logger.info("Successfully detected Docker bridge IP: '${outputText}'")
+            return outputText
+        }
+    } catch (Exception e) {
+        logger.error("Failed to detect Docker bridge IP: ${e.message}")
+    }
+
+    println "${yellow}⚠️ WARNING: Failed to automatically detect Docker bridge IP.${reset}"
+    println "${yellow}Please run: docker run --rm alpine sh -c 'ip route show default | head -1 | cut -d\" \" -f3'${reset}"
+    println ""
+
+    return readUserInput("${yellow}💬 Enter Docker bridge IP or press Enter for default (${defaultIp}): ${reset}", defaultIp)
+}
+
+def getGatewayIpForDocker(String defaultIp, def yellow, def green, def reset) {
+    if (checkHostDockerInternalAvailability()) {
+        return "host.docker.internal"
+    }
+    return detectDockerBridgeIP(defaultIp, yellow, green, reset)
+}
+
+task 'mainui.variables.setup' {
+    group = "configuration"
+    description = "Detects and prints the suggested MainUI and Tomcat configuration variables."
+
+    doLast {
+        def yellow = "\u001B[33;1m"
+        def red = "\u001B[31;1m"
+        def green = "\u001B[32;1m"
+        def blue = "\u001B[34;1m"
+        def reset = "\u001B[0m"
+
+        // === CONTEXT NAME ===
+        def contextName = project.findProperty("context.name")
+        if (!contextName) {
+            throw new GradleException("${red}❌ ERROR: Missing required property 'context.name'. Use -Pcontext.name=your_context${reset}")
+        }
+
+        println ""
+        println "${blue}╔════════════════════════════════════════════════════════════════╗${reset}"
+        println "${blue}║           MainUI Configuration Setup Wizard                    ║${reset}"
+        println "${blue}╚════════════════════════════════════════════════════════════════╝${reset}"
+        println ""
+
+        // === DETECT TOMCAT MODE ===
+        def tomcatMode = null
+        if (project.hasProperty("docker_com.etendoerp.tomcat") &&
+                project.property("docker_com.etendoerp.tomcat").toString() == "true") {
+            tomcatMode = "docker"
+            println "${green}✓ Detected Tomcat Docker mode from gradle.properties${reset}"
+        }
+
+        while (!tomcatMode) {
+            def sourcesPath = project.findProperty("sources.path")
+            if (sourcesPath && sourcesPath.toString().toLowerCase().startsWith("/opt/etendoerp")) {
+                println "${yellow}💡 Detected sources.path in /opt/EtendoERP, suggesting 'server' mode for Tomcat.${reset}"
+            }
+
+            println ""
+            println "${yellow}📦 Tomcat Configuration:${reset}"
+            println "${yellow}   • 'docker'  → Tomcat runs in Docker container${reset}"
+            println "${yellow}   • 'local'   → Tomcat runs directly on host machine${reset}"
+            println "${yellow}   • 'server'  → Tomcat runs in remote server${reset}"
+            println ""
+
+            tomcatMode = readUserInput("${yellow}💬 Select Tomcat mode [local/docker/server] (default: local): ${reset}", "local")
+
+            if (!["local", "docker", "server"].contains(tomcatMode)) {
+                println "${red}❌ Invalid mode. Must be 'docker', 'local', or 'server'.${reset}"
+                tomcatMode = null
+            }
+        }
+
+        // === DETECT MAINUI MODE ===
+        def mainUIMode = null
+        if (project.hasProperty("docker_com.etendoerp.mainui") &&
+                project.property("docker_com.etendoerp.mainui").toString() == "true") {
+            mainUIMode = "docker"
+            println "${green}✓ Detected MainUI Docker mode from gradle.properties${reset}"
+        }
+
+        while (!mainUIMode) {
+            println ""
+            println "${yellow}🎨 MainUI Configuration:${reset}"
+            println "${yellow}   • 'docker' → MainUI runs in Docker container (recommended)${reset}"
+            println "${yellow}   • 'local'  → MainUI runs directly on host machine${reset}"
+            println ""
+
+            mainUIMode = readUserInput("${yellow}💬 Select MainUI mode [local/docker] (default: docker): ${reset}", "docker")
+
+            if (!["docker", "local"].contains(mainUIMode)) {
+                println "${red}❌ Invalid mode. Must be 'docker' or 'local'.${reset}"
+                mainUIMode = null
+            }
+        }
+
+        // === VALIDATION ===
+        if (mainUIMode == "docker" && tomcatMode == "local") {
+            println ""
+            println "${yellow}⚠️  WARNING: Mixed Docker Configuration Detected${reset}"
+            println "${yellow}   MainUI (Docker) + Tomcat (Local) requires special network setup.${reset}"
+            println ""
+        }
+
+        // === TOMCAT PORT ===
+        def tomcatPort = project.findProperty("tomcatPort") ?: project.findProperty("TOMCAT_PORT")
+
+        if (!tomcatPort && tomcatMode != "docker") {
+            if (tomcatMode == "server") {
+                println ""
+                println "${yellow}💡 Tip: Check server port with: sudo cat /etc/apache2/ports.conf${reset}"
+            }
+            println ""
+            tomcatPort = readUserInput("${yellow}💬 Enter Tomcat port (default: 8080): ${reset}", "8080")
+        }
+
+        if (!tomcatPort) {
+            tomcatPort = "8080"
+        }
+
+        def mainUIPort = "3000"
+
+        // === VARIABLE CONSTRUCTION ===
+        def etendoClassicUrl
+        def nextPublicAppUrl
+
+        if (mainUIMode == "docker" && tomcatMode == "docker") {
+            println ""
+            println "${blue}📋 Configuration: Both services in Docker${reset}"
+
+            etendoClassicUrl = "http://tomcat:8080/${contextName}"
+            nextPublicAppUrl = "http://localhost:${mainUIPort}"
+
+        } else if (mainUIMode == "docker" && tomcatMode != "docker") {
+            println ""
+            println "${blue}📋 Configuration: MainUI in Docker, Tomcat on host${reset}"
+
+            def defaultIp = "172.17.0.1"
+            def gatewayIp = getGatewayIpForDocker(defaultIp, yellow, green, reset)
+
+            etendoClassicUrl = "http://${gatewayIp}:${tomcatPort}/${contextName}"
+            nextPublicAppUrl = "http://localhost:${mainUIPort}"
+
+        } else {
+            println ""
+            println "${blue}📋 Configuration: Both services running locally${reset}"
+
+            etendoClassicUrl = "http://localhost:${tomcatPort}/${contextName}"
+            nextPublicAppUrl = "http://localhost:${mainUIPort}"
+        }
+
+        // === OUTPUT ===
+        def properties = [
+                'docker_com.etendoerp.mainui'       : mainUIMode == "docker" ? 'true' : 'false',
+                'etendo.classic.url'                : etendoClassicUrl,
+                'next.public.app.url'               : nextPublicAppUrl,
+                'authentication.class'              : 'com.etendoerp.etendorx.auth.SWSAuthenticationManager',
+                'ws.maxInactiveInterval'            : '3600'
+        ]
+
+        // Try to write as JSON for interactive setup
+        boolean wasWrittenAsJson = false
+        if (InteractiveSetupManager != null) {
+            try {
+                wasWrittenAsJson = InteractiveSetupManager.writeResultsForInteractiveSetup(project, properties)
+            } catch (Exception e) {
+                project.logger.debug("Failed to call InteractiveSetupManager: ${e.message}")
+                wasWrittenAsJson = false
+            }
+        }
+
+        // Fallback to human-readable output
+        if (!wasWrittenAsJson) {
+            println ""
+            println "${green}╔════════════════════════════════════════════════════════════════╗${reset}"
+            println "${green}║  ✅ Suggested gradle.properties values                         ║${reset}"
+            println "${green}╚════════════════════════════════════════════════════════════════╝${reset}"
+            println ""
+
+            properties.each { key, value ->
+                println "${green}${key}${reset}=${value}"
+            }
+
+            println ""
+            println "${blue}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
+            println "${yellow}💡 Configuration Summary:${reset}"
+            println "${yellow}   • MainUI Mode: ${mainUIMode}${reset}"
+            println "${yellow}   • Tomcat Mode: ${tomcatMode}${reset}"
+
+            if (mainUIMode == "docker" && tomcatMode != "docker") {
+                println ""
+                println "${yellow}⚠️  Mixed configuration requires:${reset}"
+                println "${green}   docker run ... --add-host=host.docker.internal:host-gateway${reset}"
+            }
+
+            println "${blue}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
+            println ""
+        }
+    }
+}
