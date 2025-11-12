@@ -174,7 +174,7 @@ task 'mainui.variables.setup' {
 
         // === VARIABLE CONSTRUCTION ===
         def etendoClassicUrl
-        def nextPublicEtendoClassicHost
+        def etendoClassicHost
         def nextPublicAppUrl
 
         if (mainUIMode == "docker" && tomcatMode == "docker") {
@@ -182,7 +182,7 @@ task 'mainui.variables.setup' {
             println "${blue}📋 Configuration: Both services in Docker${reset}"
 
             etendoClassicUrl = "http://tomcat:8080/${contextName}"
-            nextPublicEtendoClassicHost = "http://localhost:${tomcatPort}/${contextName}"
+            etendoClassicHost = "http://localhost:${tomcatPort}/${contextName}"
             nextPublicAppUrl = "http://localhost:${mainUIPort}"
 
         } else if (mainUIMode == "docker" && tomcatMode != "docker") {
@@ -193,7 +193,7 @@ task 'mainui.variables.setup' {
             def gatewayIp = getGatewayIpForDocker(defaultIp, yellow, green, reset)
 
             etendoClassicUrl = "http://${gatewayIp}:${tomcatPort}/${contextName}"
-            nextPublicEtendoClassicHost = "http://localhost:${tomcatPort}/${contextName}"
+            etendoClassicHost = "http://localhost:${tomcatPort}/${contextName}"
             nextPublicAppUrl = "http://localhost:${mainUIPort}"
 
         } else {
@@ -201,7 +201,7 @@ task 'mainui.variables.setup' {
             println "${blue}📋 Configuration: Both services running locally${reset}"
 
             etendoClassicUrl = "http://localhost:${tomcatPort}/${contextName}"
-            nextPublicEtendoClassicHost = "http://localhost:${tomcatPort}/${contextName}"
+            etendoClassicHost = "http://localhost:${tomcatPort}/${contextName}"
             nextPublicAppUrl = "http://localhost:${mainUIPort}"
         }
 
@@ -209,7 +209,7 @@ task 'mainui.variables.setup' {
         def properties = [
                 'docker_com.etendoerp.mainui'       : mainUIMode == "docker" ? 'true' : 'false',
                 'etendo.classic.url'                : etendoClassicUrl,
-                'next.public.etendo.classic.host'   : nextPublicEtendoClassicHost,
+                'etendo.classic.host'               : etendoClassicHost,
                 'next.public.app.url'               : nextPublicAppUrl,
                 'authentication.class'              : 'com.etendoerp.etendorx.auth.SWSAuthenticationManager',
                 'ws.maxInactiveInterval'            : '3600'

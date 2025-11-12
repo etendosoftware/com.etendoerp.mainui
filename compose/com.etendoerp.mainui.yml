@@ -1,12 +1,12 @@
 services:
   etendo_ui:
-    image: etendo/etendo_ui:0.7.0
+    image: etendo/etendo_ui:hotfix-ETP-2807
     ports:
       - 3000:3000
     networks:
       - etendo
     environment:
       - ETENDO_CLASSIC_URL=${ETENDO_CLASSIC_URL}
-      - NEXT_PUBLIC_ETENDO_CLASSIC_HOST=${NEXT_PUBLIC_ETENDO_CLASSIC_HOST}
+      - ETENDO_CLASSIC_HOST=${ETENDO_CLASSIC_HOST}
     extra_hosts:
       - "host.docker.internal:host-gateway"
