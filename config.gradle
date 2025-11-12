@@ -48,6 +48,22 @@ newUI {
         order = 30
         name = "etendo.classic.url"
     }
+    etendoClassicHost {
+        description = "Etendo Classic host URL (client-side)"
+        help = """🌐 URL that the browser uses for direct requests to Etendo Classic.
+        - This URL is for CLIENT-SIDE communication (visible to browser)
+        - Must be accessible from the user's browser
+        - In Docker hybrid mode (UI in Docker + Tomcat local): use http://localhost:8080/etendo
+        - If not set, defaults to etendo.classic.url
+
+        🎯 Use the setup wizard to auto-configure this correctly."""
+        value = "http://localhost:8080/etendo"
+        sensitive = false
+        required = false
+        group = "Main UI"
+        order = 35
+        name = "etendo.classic.host"
+    }
     authClass {
         description = "Authentication manager class"
         help = """🔐 Java class that handles authentication between MainUI and Etendo Classic.
