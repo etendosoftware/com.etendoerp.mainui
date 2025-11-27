@@ -1,9 +1,3 @@
-def InteractiveSetupManager = null
-try {
-    InteractiveSetupManager = Class.forName('com.etendoerp.legacy.interactive.InteractiveSetupManager')
-} catch (ClassNotFoundException e) {
-    // Not available
-}
 
 def readUserInput(String prompt, String defaultValue = "") {
     def console = System.console()
@@ -215,15 +209,17 @@ task 'mainui.variables.setup' {
                 'ws.maxInactiveInterval'            : '3600'
         ]
 
-        // Try to write as JSON for interactive setup
+        // Try to write as JSON for interactive setup (if the project has the closure)
         boolean wasWrittenAsJson = false
-        if (InteractiveSetupManager != null) {
+        if (project.hasProperty('writeResultsForInteractiveSetup')) {
             try {
-                wasWrittenAsJson = InteractiveSetupManager.writeResultsForInteractiveSetup(project, properties)
+                wasWrittenAsJson = project.writeResultsForInteractiveSetup(properties)
             } catch (Exception e) {
-                project.logger.debug("Failed to call InteractiveSetupManager: ${e.message}")
+                project.logger.debug("Failed to call project.writeResultsForInteractiveSetup: ${e.message}")
                 wasWrittenAsJson = false
             }
+        } else {
+            project.logger.lifecycle("Interactive setup writer not registered on project; proceeding with console output.")
         }
 
         // Fallback to human-readable output
