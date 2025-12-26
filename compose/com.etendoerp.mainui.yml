@@ -1,6 +1,6 @@
 services:
   etendo_ui:
-    image: etendo/etendo_ui:0.8.0
+    image: etendo/etendo_ui:0.9.0
     ports:
       - 3000:3000
     networks:
