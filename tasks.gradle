@@ -149,7 +149,7 @@ task 'mainui.variables.setup' {
         }
 
         // === TOMCAT PORT ===
-        def tomcatPort = project.findProperty("tomcatPort") ?: project.findProperty("TOMCAT_PORT")
+        def tomcatPort = project.findProperty("tomcat.port") ?: project.findProperty("TOMCAT_PORT")
 
         if (!tomcatPort && tomcatMode != "docker") {
             def defaultPort = tomcatMode == "server" ? "80" : "8080"
@@ -162,7 +162,7 @@ task 'mainui.variables.setup' {
         }
 
         if (!tomcatPort) {
-            tomcatPort = tomcatMode == "server" ? "80" : "8080"
+            tomcatPort = (tomcatMode == "server") ? "80" : "8080"
         }
 
         def mainUIPort = "3000"
