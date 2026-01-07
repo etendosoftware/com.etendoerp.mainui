@@ -149,7 +149,8 @@ task 'mainui.variables.setup' {
         }
 
         // === TOMCAT PORT ===
-        def tomcatPort = project.findProperty("tomcatPort") ?: project.findProperty("TOMCAT_PORT")
+        def tomcatPort = project.findProperty("tomcat.port") ?: project.findProperty("TOMCAT_PORT")
+        def defaultPort = (tomcatMode == "server") ? "80" : "8080"
 
         if (!tomcatPort && tomcatMode != "docker") {
             if (tomcatMode == "server") {
@@ -157,11 +158,11 @@ task 'mainui.variables.setup' {
                 println "${yellow}💡 Tip: Check server port with: sudo cat /etc/apache2/ports.conf${reset}"
             }
             println ""
-            tomcatPort = readUserInput("${yellow}💬 Enter Tomcat port (default: 8080): ${reset}", "8080")
+            tomcatPort = readUserInput("${yellow}💬 Enter Tomcat port (default: ${defaultPort}): ${reset}", defaultPort)
         }
 
         if (!tomcatPort) {
-            tomcatPort = "8080"
+            tomcatPort = defaultPort
         }
 
         def mainUIPort = "3000"
