@@ -7,7 +7,7 @@
 */
 
 group          = "com.etendoerp"
-version        = "0.13.6"
+version        = "0.13.7"
 description    = "Main UI Next.js frontend"
 ext.artifact   = "mainui"
 ext.repository = "https://maven.pkg.github.com/etendosoftware/com.etendoerp.platform.extensions"
