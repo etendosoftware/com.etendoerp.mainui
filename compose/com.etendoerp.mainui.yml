@@ -2,7 +2,7 @@ services:
   etendo_ui:
     image: etendo/etendo_ui:0.13.1
     ports:
-      - 3000:3000
+      - ${UI_PORT:-3000}:3000
     networks:
       - etendo
     environment:

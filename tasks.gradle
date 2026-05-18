@@ -165,7 +165,11 @@ task 'mainui.variables.setup' {
             tomcatPort = defaultPort
         }
 
-        def mainUIPort = "3000"
+        // === MAINUI PORT ===
+        def mainUIPort = project.findProperty("ui.port") ?: "3000"
+        println ""
+        def customMainUIPort = readUserInput("${yellow}💬 Enter MainUI port (default: ${mainUIPort}): ${reset}", mainUIPort)
+        mainUIPort = customMainUIPort ?: mainUIPort
 
         // === VARIABLE CONSTRUCTION ===
         def etendoClassicUrl
@@ -205,6 +209,7 @@ task 'mainui.variables.setup' {
                 'docker_com.etendoerp.mainui'       : mainUIMode == "docker" ? 'true' : 'false',
                 'etendo.classic.url'                : etendoClassicUrl,
                 'etendo.classic.host'               : etendoClassicHost,
+                'ui.port'                           : mainUIPort,
                 'next.public.app.url'               : nextPublicAppUrl,
                 'authentication.class'              : 'com.etendoerp.etendorx.auth.SWSAuthenticationManager',
                 'ws.maxInactiveInterval'            : '3600'

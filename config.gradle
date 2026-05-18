@@ -100,6 +100,23 @@ newUI {
         name = "ws.maxInactiveInterval"
     }
 
+    uiPort {
+        description = "MainUI host port"
+        help = """🔌 Port on the host machine where MainUI will be accessible.
+        Change this if port 3000 is already in use by another service.
+
+        EXAMPLES:
+        - 3000 (default)
+        - 3001, 3002, etc.
+
+        🎯 Only change this if you have a port conflict on 3000."""
+        value = "3000"
+        sensitive = false
+        required = false
+        group = "Main UI"
+        order = 55
+        name = "ui.port"
+    }
     nextPublicAppUrl {
         description = "MainUI public application URL"
         help = """🌐 Public URL where users access the MainUI application.
