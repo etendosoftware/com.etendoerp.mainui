@@ -1,6 +1,6 @@
 services:
   etendo_ui:
-    image: etendo/etendo_ui:0.14.0
+    image: etendo/etendo_ui:0.14.1
     ports:
       - ${UI_PORT:-3000}:3000
     networks:
